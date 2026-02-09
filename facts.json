@@ -1,0 +1,36 @@
+{
+  "signs_of_spiritual_abuse": [
+    {
+      "text": "Johtajien tai auktoriteetin liiallinen kontrolli ja painostus hengellisissä asioissa",
+      "source": "https://www.uskonnollinenmoninaisuus.fi/l/hengellinen-vakivalta-tunnistaminen/"
+    },
+    {
+      "text": "Pelon tai uhkailun käyttö käyttäytymisen ohjaamiseen",
+      "source": "https://www.mielenterveystalo.fi/fi/aggressio-vakivalta/hengellinen-vakivalta"
+    },
+    {
+      "text": "Syyllisyyden ja häpeän korostaminen yksilön sisäistämiseksi",
+      "source": "https://www.uskontojenuhrientuki.fi/uskonyhteisoista/hengellinen-vakivalta/"
+    }
+  ],
+  "guidance_for_support": [
+    {
+      "text": "Kuuntele aktiivisesti, vahvista kokemukset ja vältä vähättelyä",
+      "source": "https://www.uskontojenuhrientuki.fi/uskonyhteisoista/miten-kohdata-hengellista-vakivaltaa-kokenut/"
+    },
+    {
+      "text": "Arvioi turvallisuustilanne ja dokumentoi havainnot tarvittaessa",
+      "source": "https://www.mielenterveystalo.fi/fi/aggressio-vakivalta/hengellinen-vakivalta"
+    }
+  ],
+  "follow_up_support": [
+    {
+      "name": "RIKU - rikosoikeudellinen tuki (UUT:n vertaistuki)",
+      "source": "https://www.riku.fi/"
+    },
+    {
+      "name": "Mielenterveystalo - omahoito-ohjelma hengellisen väkivallan uhreille",
+      "source": "https://www.mielenterveystalo.fi/"
+    }
+  ]
+}
