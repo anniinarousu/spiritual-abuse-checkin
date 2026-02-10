@@ -1,36 +1,52 @@
 {
   "signs_of_spiritual_abuse": [
     {
-      "text": "Johtajien tai auktoriteetin liiallinen kontrolli ja painostus hengellisissä asioissa",
-      "source": "https://www.uskonnollinenmoninaisuus.fi/l/hengellinen-vakivalta-tunnistaminen/"
+      "text": "Pelottelu Jumalan rangaistuksilla tai pahoilla hengillä",
+      "source": "https://www.intachq.org/"
     },
     {
-      "text": "Pelon tai uhkailun käyttö käyttäytymisen ohjaamiseen",
-      "source": "https://www.mielenterveystalo.fi/fi/aggressio-vakivalta/hengellinen-vakivalta"
+      "text": "Yksityiselämän kontrollointi uskonnollisin perustein",
+      "source": "https://www.intachq.org/"
     },
     {
-      "text": "Syyllisyyden ja häpeän korostaminen yksilön sisäistämiseksi",
-      "source": "https://www.uskontojenuhrientuki.fi/uskonyhteisoista/hengellinen-vakivalta/"
+      "text": "Sosiaalinen eristäminen ja yhteisöstä sulkeminen",
+      "source": "https://uu-tuki.fi/"
+    },
+    {
+      "text": "Häpeän ja syyllisyyden korostaminen",
+      "source": "https://uu-tuki.fi/"
     }
   ],
   "guidance_for_support": [
     {
-      "text": "Kuuntele aktiivisesti, vahvista kokemukset ja vältä vähättelyä",
-      "source": "https://www.uskontojenuhrientuki.fi/uskonyhteisoista/miten-kohdata-hengellista-vakivaltaa-kokenut/"
+      "text": "Kuuntele aktiivisesti ja vahvista kokemukset todellisiksi",
+      "source": "https://uu-tuki.fi/"
     },
     {
-      "text": "Arvioi turvallisuustilanne ja dokumentoi havainnot tarvittaessa",
-      "source": "https://www.mielenterveystalo.fi/fi/aggressio-vakivalta/hengellinen-vakivalta"
+      "text": "Vältä vähättelyä ja painostamista",
+      "source": "https://uu-tuki.fi/"
+    },
+    {
+      "text": "Arvioi turvallisuustilanne",
+      "source": "https://www.intachq.org/"
     }
   ],
   "follow_up_support": [
     {
-      "name": "RIKU - rikosoikeudellinen tuki (UUT:n vertaistuki)",
+      "name": "UUT - Uskontojen uhrien tuki ry",
+      "source": "https://uu-tuki.fi/"
+    },
+    {
+      "name": "RIKU - Rikosuhripäivystys",
       "source": "https://www.riku.fi/"
     },
     {
-      "name": "Mielenterveystalo - omahoito-ohjelma hengellisen väkivallan uhreille",
+      "name": "Mielenterveystalo - omahoito-ohjelmat",
       "source": "https://www.mielenterveystalo.fi/"
+    },
+    {
+      "name": "Kriisipuhelin (MIELI ry)",
+      "source": "https://mieli.fi/kriisipuhelin/"
     }
   ]
 }
