@@ -85,8 +85,6 @@ header[data-testid="stHeader"] svg {
 /* ===== SLIDER ===== */
 [data-testid="stSidebar"] .stSlider,
 [data-testid="stSidebar"] .stSlider > div,
-[data-testid="stSidebar"] .stSlider > div > div,
-[data-testid="stSidebar"] .stSlider > div > div > div,
 [data-testid="stSidebar"] .stSlider label,
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"],
 [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
@@ -94,35 +92,36 @@ header[data-testid="stHeader"] svg {
     background: transparent !important;
 }
 
-/* Slider numerot 1 ja 5 - ei taustaa */
+/* Slider numerot 1 ja 5 - valkoinen teksti, EI taustaa */
 [data-testid="stSidebar"] .stSlider [data-testid="stTickBarMin"],
-[data-testid="stSidebar"] .stSlider [data-testid="stTickBarMax"],
-[data-testid="stSidebar"] .stSlider p,
-[data-testid="stSidebar"] .stSlider span,
-[data-testid="stSidebar"] .stSlider div[data-testid] {
+[data-testid="stSidebar"] .stSlider [data-testid="stTickBarMax"] {
     color: white !important;
     background-color: transparent !important;
-    background: transparent !important;
+    background: none !important;
 }
 
-/* Slider tausta-container - läpinäkyvä */
+/* Slider kaikki span ja p elementit - ei taustaa */
+[data-testid="stSidebar"] .stSlider p,
+[data-testid="stSidebar"] .stSlider span {
+    color: white !important;
+    background-color: transparent !important;
+    background: none !important;
+}
+
+/* Slider container - läpinäkyvä */
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div {
     background: transparent !important;
     background-color: transparent !important;
 }
 
-/* Slider VIIVA (track) - koko viiva turkoosi */
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div,
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div,
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div:first-child,
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div:last-child {
+/* Slider VIIVA (track) - VAIN viiva turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:nth-child(1) > div {
     background: #85dbd9 !important;
     background-color: #85dbd9 !important;
 }
 
-/* Slider track fill (vasen puoli) - turkoosi */
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [data-testid="StyledTrackFill"],
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[style*="background"] {
+/* Slider track fill - turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[style*="rgb(255"] {
     background: #85dbd9 !important;
     background-color: #85dbd9 !important;
 }
@@ -133,16 +132,17 @@ header[data-testid="stHeader"] svg {
     border-color: #85dbd9 !important;
 }
 
-/* Slider arvo nupissa */
+/* Slider arvo nupissa - ei taustaa */
 [data-testid="stSidebar"] .stSlider [data-testid="stThumbValue"] {
     color: white !important;
     background-color: transparent !important;
+    background: none !important;
 }
 
-/* Ylikirjoita kaikki oranssit värit sliderissa */
-[data-testid="stSidebar"] .stSlider div[style*="rgb(255"] {
-    background: #85dbd9 !important;
-    background-color: #85dbd9 !important;
+/* Varmista ettei mikään muu slider-elementti saa taustaa */
+[data-testid="stSidebar"] .stSlider div[data-testid] {
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* ===== PAINIKE ===== */
