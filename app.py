@@ -105,15 +105,20 @@ header[data-testid="stHeader"] svg {
     background: transparent !important;
 }
 
-/* Slider palkki - KOKO palkki turkoosi (molemmat puolet) */
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div,
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div,
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div {
-    background: #85dbd9 !important;
-    background-color: #85dbd9 !important;
+/* Slider tausta-container - läpinäkyvä */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div {
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
-/* Slider nuppi - turkoosi */
+/* Slider VIIVA (track) - turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div:first-child {
+    background: #85dbd9 !important;
+    background-color: #85dbd9 !important;
+    height: 4px !important;
+}
+
+/* Slider PALLO (thumb) - turkoosi */
 [data-testid="stSidebar"] .stSlider [role="slider"] {
     background-color: #85dbd9 !important;
     border-color: #85dbd9 !important;
