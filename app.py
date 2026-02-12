@@ -503,7 +503,7 @@ Käytä markdown-muotoilua (## otsikoille, **lihavointi**, - listoille)."""
         return response.text
         
     except Exception as e:
-        st.warning(f"AI-reflektio ei onnistunut: {e}")
+        pass  # Käytä hiljaisesti fallback-versiota
         return fallback_reflection(lang, data, facts, tr)
 
 
