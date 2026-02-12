@@ -4,7 +4,8 @@
 
 import streamlit as st
 import json
-
+import google.generativeai as genai
+import os
 # ----------------------
 # TÄRKEÄÄ: st.set_page_config() täytyy olla ENSIMMÄINEN Streamlit-komento
 # ----------------------
@@ -441,10 +442,12 @@ translations = {
 # ----------------------
 # AI-avusteinen reflektio
 # ----------------------
+# ----------------------
+# AI-avusteinen reflektio (Gemini API)
+# ----------------------
 def generate_ai_reflection(lang, data, facts, tr):
     """
-    Generoi älykkään, kontekstuaalisen reflektion valittujen indikaattorien perusteella.
-    Analysoi vastaukset ja tuottaa kategoriakohtaista palautetta.
+    Generoi älykkään, kontekstuaalisen reflektion Gemini AI:n avulla.
     """
     checked_keys = data.get("checked_keys", [])
     checked_labels = data.get("checked_labels", [])
@@ -452,18 +455,180 @@ def generate_ai_reflection(lang, data, facts, tr):
     notes = data.get("notes", "")
     categories = tr.get("question_categories", {})
     
-    # Määritä vakavuustaso
-    num_indicators = len(checked_keys)
-    if num_indicators >= 5:
-        severity = "high"
-    elif num_indicators >= 3:
-        severity = "medium"
-    elif num_indicators >= 1:
-        severity = "low"
-    else:
-        severity = "none"
+    # Haetaan valitut kategoriat
+    checked_categories = [categories.get(k, k) for k in checked_keys]
     
-    reflection_parts = []
+    # Määritä kieli promptille
+    lang_names = {
+        "Suomi": "suomeksi",
+        "English": "in English",
+        "Svenska": "på svenska"
+    }
+    lang_instruction = lang_names.get(lang, "suomeksi")
+    
+    # Rakenna konteksti AI:lle
+    if checked_categories:
+        indicators_text = "\n".join([f"- {cat}" for cat in checked_categories])
+    else:
+        indicators_text = "Ei valittuja indikaattoreita."
+    
+    # Tukipalvelut facts.json:sta
+    support_list = []
+    for s in facts.get("follow_up_support", []):
+        name = s.get('name', s.get('text', ''))
+        source = s.get('source', '')
+        if name and source:
+            support_list.append(f"- {name}: {source}")
+    support_text = "\n".join(support_list) if support_list else "Ei saatavilla."
+    
+    # AI-prompt
+    prompt = f"""Olet trauma-tietoinen ammattilainen, joka auttaa kartoittamaan hengellisen väkivallan merkkejä.
+
+Asiakkaan tilanne:
+- Turvallisuuden kokemus: {safe}/5 (1=hyvin pelokas, 5=hyvin turvallinen)
+- Havaitut hengellisen väkivallan muodot:
+{indicators_text}
+- Työntekijän muistiinpanot: {notes if notes else "Ei muistiinpanoja."}
+
+Tukipalvelut Suomessa:
+{support_text}
+
+Tehtäväsi:
+1. Kirjoita lyhyt, empaattinen yhteenveto asiakkaan tilanteesta
+2. Analysoi mitä havaitut merkit voivat tarkoittaa asiakkaan kokemuksessa
+3. Anna 3-4 konkreettista suositusta työntekijälle
+4. Mainitse sopivat tukipalvelut
+
+Kirjoita vastaus {lang_instruction}. Käytä trauma-tietoista, kunnioittavaa kieltä. 
+Älä käytä liian kliinistä kieltä. Ole empaattinen mutta ammatillinen.
+Käytä markdown-muotoilua (## otsikoille, **lihavointi**, - listoille)."""
+
+    # Yritä kutsua Gemini API:a
+    try:
+        # Hae API-avain
+        api_key = os.environ.get("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
+        
+        if not api_key:
+            return fallback_reflection(lang, data, facts, tr)
+        
+        # Konfiguroi Gemini
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        # Generoi vastaus
+        response = model.generate_content(prompt)
+        
+        return response.text
+        
+    except Exception as e:
+        # Jos API-kutsu epäonnistuu, käytä fallback-logiikkaa
+        st.warning(f"AI-reflektio ei onnistunut, käytetään vaihtoehtoista menetelmää.")
+        return fallback_reflection(lang, data, facts, tr)
+
+
+def fallback_reflection(lang, data, facts, tr):
+    """
+    Vaihtoehtoinen sääntöpohjainen reflektio, jos AI ei toimi.
+    """
+    checked_keys = data.get("checked_keys", [])
+    safe = data.get("safe_slider", 3)
+    notes = data.get("notes", "")
+    categories = tr.get("question_categories", {})
+    
+    num_indicators = len(checked_keys)
+    
+    parts = []
+    
+    if lang == "Suomi":
+        if num_indicators >= 5:
+            parts.append("## ⚠️ Vakavia huolenaiheita havaittu\n")
+        elif num_indicators >= 3:
+            parts.append("## ⚡ Useita huolenaiheita havaittu\n")
+        elif num_indicators >= 1:
+            parts.append("## 📋 Joitakin huolenaiheita havaittu\n")
+        else:
+            parts.append("## ✅ Ei merkittäviä huolenaiheita havaittu\n")
+        
+        parts.append(f"**Turvallisuuden kokemus:** {safe}/5\n")
+        
+        if checked_keys:
+            parts.append("### Havaitut muodot:\n")
+            for key in checked_keys:
+                cat = categories.get(key, key)
+                parts.append(f"- {cat}")
+        
+        if notes:
+            parts.append(f"\n### Muistiinpanot:\n{notes}")
+        
+        parts.append("\n### Suositukset:\n")
+        parts.append("- Kuuntele empaattisesti")
+        parts.append("- Vahvista asiakkaan kokemukset")
+        parts.append("- Arvioi turvallisuustilanne")
+        parts.append("- Ohjaa tarvittaessa ammatilliseen tukeen")
+        
+    elif lang == "English":
+        if num_indicators >= 5:
+            parts.append("## ⚠️ Serious concerns identified\n")
+        elif num_indicators >= 3:
+            parts.append("## ⚡ Multiple concerns identified\n")
+        elif num_indicators >= 1:
+            parts.append("## 📋 Some concerns identified\n")
+        else:
+            parts.append("## ✅ No significant concerns identified\n")
+        
+        parts.append(f"**Safety experience:** {safe}/5\n")
+        
+        if checked_keys:
+            parts.append("### Identified forms:\n")
+            for key in checked_keys:
+                cat = categories.get(key, key)
+                parts.append(f"- {cat}")
+        
+        if notes:
+            parts.append(f"\n### Notes:\n{notes}")
+        
+        parts.append("\n### Recommendations:\n")
+        parts.append("- Listen empathetically")
+        parts.append("- Validate the client's experiences")
+        parts.append("- Assess safety situation")
+        parts.append("- Refer to professional support if needed")
+        
+    elif lang == "Svenska":
+        if num_indicators >= 5:
+            parts.append("## ⚠️ Allvarliga bekymmer identifierade\n")
+        elif num_indicators >= 3:
+            parts.append("## ⚡ Flera bekymmer identifierade\n")
+        elif num_indicators >= 1:
+            parts.append("## 📋 Vissa bekymmer identifierade\n")
+        else:
+            parts.append("## ✅ Inga betydande bekymmer identifierade\n")
+        
+        parts.append(f"**Trygghetsupplevelse:** {safe}/5\n")
+        
+        if checked_keys:
+            parts.append("### Identifierade former:\n")
+            for key in checked_keys:
+                cat = categories.get(key, key)
+                parts.append(f"- {cat}")
+        
+        if notes:
+            parts.append(f"\n### Anteckningar:\n{notes}")
+        
+        parts.append("\n### Rekommendationer:\n")
+        parts.append("- Lyssna empatiskt")
+        parts.append("- Bekräfta klientens upplevelser")
+        parts.append("- Bedöm säkerhetssituationen")
+        parts.append("- Hänvisa till professionellt stöd vid behov")
+    
+    # Lisää tukipalvelut
+    parts.append("\n---\n### Tukipalvelut:\n")
+    for s in facts.get("follow_up_support", []):
+        name = s.get('name', s.get('text', ''))
+        source = s.get('source', '')
+        if name and source:
+            parts.append(f"- [{name}]({source})")
+    
+    return "\n".join(parts)
     
     # === SUOMI ===
     if lang == "Suomi":
