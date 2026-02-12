@@ -17,10 +17,6 @@ st.set_page_config(
 # ----------------------
 # Väriympäristön määritys
 # ----------------------
-# Päivitetyt värit:
-# - Sivupalkki: #7a72bd (tumma lila)
-# - Otsikot: #369694 (turkoosi)
-# - Checkbox/slider aksenttiväri: #85dbd9 (vaalea turkoosi)
 color_scheme = """
 <style>
 /* Pääalueen tausta */
@@ -37,66 +33,116 @@ h2, h3 {
     color: #369694 !important;
 }
 
-/* Sivupalkki - tumma lila */
+/* Yläpalkin ikonit (share, tähti, kynä, github, kolme pistettä) */
+header[data-testid="stHeader"] {
+    background-color: #85dbd9 !important;
+}
+header[data-testid="stHeader"] button {
+    color: white !important;
+}
+header[data-testid="stHeader"] svg {
+    fill: white !important;
+    stroke: white !important;
+}
+
+/* Sivupalkki - tumma lila tausta */
 [data-testid="stSidebar"] {
     background-color: #7a72bd !important;
 }
 [data-testid="stSidebar"] h1, 
 [data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] .stMarkdown {
+[data-testid="stSidebar"] .stMarkdown,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] p {
     color: white !important;
 }
-[data-testid="stSidebar"] label {
+
+/* Checkbox - poista turkoosi boxi, pidä lila tausta */
+[data-testid="stSidebar"] .stCheckbox {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] .stCheckbox > div {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] .stCheckbox label {
+    background-color: transparent !important;
     color: white !important;
 }
-[data-testid="stSidebar"] .stTextArea label,
+[data-testid="stSidebar"] .stCheckbox > div > div {
+    background-color: transparent !important;
+}
+
+/* Checkbox täppä - turkoosi väri */
+[data-testid="stSidebar"] input[type="checkbox"]:checked + div > svg {
+    color: #85dbd9 !important;
+    fill: #85dbd9 !important;
+}
+[data-testid="stSidebar"] .stCheckbox svg {
+    color: #85dbd9 !important;
+    fill: #85dbd9 !important;
+}
+
+/* Slider - poista turkoosi boxi */
+[data-testid="stSidebar"] .stSlider {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] .stSlider > div {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] .stSlider > div > div {
+    background-color: transparent !important;
+}
 [data-testid="stSidebar"] .stSlider label {
+    background-color: transparent !important;
+}
+
+/* Slider numero - valkoinen */
+[data-testid="stSidebar"] .stSlider [data-testid="stTickBarMin"],
+[data-testid="stSidebar"] .stSlider [data-testid="stTickBarMax"],
+[data-testid="stSidebar"] .stSlider > div > div > div > div > div {
     color: white !important;
 }
 
-/* Checkbox - turkoosi väri */
-[data-testid="stSidebar"] .stCheckbox span[data-baseweb="checkbox"] {
-    background-color: #85dbd9 !important;
-    border-color: #85dbd9 !important;
-}
-[data-testid="stSidebar"] input[type="checkbox"]:checked + div {
-    background-color: #85dbd9 !important;
-    border-color: #85dbd9 !important;
-}
-
-/* Slider - turkoosi väri */
-[data-testid="stSidebar"] .stSlider > div > div > div > div {
-    background-color: #85dbd9 !important;
-}
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div {
+/* Slider palkki ja nuppi - turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div:first-child {
     background: #85dbd9 !important;
 }
-[data-testid="stSidebar"] .stSlider [role="slider"] {
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [role="slider"] {
     background-color: #85dbd9 !important;
+    border-color: #85dbd9 !important;
 }
 
-/* Streamlit slider track ja thumb */
-.stSlider > div > div > div[data-baseweb="slider"] > div:first-child {
-    background: linear-gradient(to right, #85dbd9 0%, #85dbd9 100%) !important;
-}
-.stSlider > div > div > div[data-baseweb="slider"] > div:nth-child(2) > div {
+/* Luo reflektio -painike */
+.stButton > button {
     background-color: #85dbd9 !important;
-}
-
-/* Painikkeet - vaalea vihreä */
-button {
-    background-color: #a8d5a8 !important;
-    color: #2d5a2d !important;
+    color: white !important;
     border: none !important;
 }
-button:hover {
-    background-color: #8ecb8e !important;
+.stButton > button:hover {
+    background-color: #6bc9c7 !important;
 }
 
-/* Info-laatikko reflektiolle */
+/* Reflektio info-laatikko */
+[data-testid="stAlert"],
 .stAlert {
-    background-color: #e8f4f4 !important;
-    border-left-color: #369694 !important;
+    background-color: #85dbd9 !important;
+    border: none !important;
+    color: white !important;
+}
+.stAlert p, .stAlert div, .stAlert span {
+    color: white !important;
+}
+
+/* Text area sivupalkissa */
+[data-testid="stSidebar"] .stTextArea {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] .stTextArea > div {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] .stTextArea textarea {
+    background-color: rgba(255,255,255,0.1) !important;
+    color: white !important;
 }
 </style>
 """
