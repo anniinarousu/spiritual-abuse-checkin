@@ -495,7 +495,7 @@ Käytä markdown-muotoilua (## otsikoille, **lihavointi**, - listoille)."""
         
         # Konfiguroi Gemini
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.0-pro')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Generoi vastaus
         response = model.generate_content(prompt)
