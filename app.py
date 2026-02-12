@@ -180,11 +180,31 @@ header[data-testid="stHeader"] svg {
     color: rgba(255,255,255,0.7) !important;
 }
 /* ===== FOCUS-REUNAT - tumma turkoosi ===== */
-/* Checkbox focus */
-[data-testid="stSidebar"] .stCheckbox input:focus + div,
-[data-testid="stSidebar"] .stCheckbox [data-baseweb="checkbox"]:focus-within {
+/* Kielivalikko (selectbox) */
+[data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within,
+[data-testid="stSelectbox"] [data-baseweb="select"]:focus-within {
     border-color: #369694 !important;
     box-shadow: 0 0 0 2px #369694 !important;
+    outline: none !important;
+}
+[data-testid="stSelectbox"] input:focus {
+    border-color: #369694 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Checkbox - EI reunaa klikattaessa */
+[data-testid="stSidebar"] .stCheckbox input:focus + div,
+[data-testid="stSidebar"] .stCheckbox [data-baseweb="checkbox"]:focus-within,
+[data-testid="stSidebar"] .stCheckbox:focus-within,
+[data-testid="stSidebar"] .stCheckbox > div:focus-within {
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+[data-testid="stSidebar"] .stCheckbox label:focus-within {
+    border: none !important;
+    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -196,11 +216,15 @@ header[data-testid="stHeader"] svg {
     outline: none !important;
 }
 
-/* Text area focus */
+/* Text area focus - tumma turkoosi reuna */
 [data-testid="stSidebar"] .stTextArea textarea:focus {
     border-color: #369694 !important;
     box-shadow: 0 0 0 2px #369694 !important;
     outline: none !important;
+}
+[data-testid="stSidebar"] .stTextArea > div:focus-within {
+    border-color: #369694 !important;
+    box-shadow: none !important;
 }
 
 /* Painike focus */
@@ -212,7 +236,6 @@ header[data-testid="stHeader"] svg {
 
 /* Kaikki input-elementit focus */
 [data-testid="stSidebar"] input:focus,
-[data-testid="stSidebar"] textarea:focus,
 [data-testid="stSidebar"] select:focus {
     border-color: #369694 !important;
     box-shadow: 0 0 0 2px #369694 !important;
@@ -226,7 +249,11 @@ header[data-testid="stHeader"] svg {
 [data-baseweb] *:focus,
 [data-baseweb] *:focus-visible {
     border-color: #369694 !important;
-    box-shadow: 0 0 0 2px #369694 !important;
+}
+/* Poista turkoosi reuna checkboxista */
+[data-testid="stSidebar"] [data-baseweb="checkbox"]:focus-within > div {
+    box-shadow: none !important;
+    border-color: transparent !important;
 }
 </style>
 """
