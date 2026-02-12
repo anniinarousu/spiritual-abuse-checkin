@@ -101,8 +101,17 @@ header[data-testid="stHeader"] svg {
     color: white !important;
 }
 
-/* Slider palkki - turkoosi */
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div:first-child > div {
+/* Slider palkki - MOLEMMAT puolet turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div,
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div:first-child > div,
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [data-testid="stThumbValue"] {
+    background: #85dbd9 !important;
+    background-color: #85dbd9 !important;
+}
+
+/* Slider track - koko palkki turkoosi */
+[data-testid="stSidebar"] .stSlider div[data-baseweb="slider"] div[role="slider"] ~ div,
+[data-testid="stSidebar"] .stSlider div[data-baseweb="slider"] > div > div:first-child {
     background: #85dbd9 !important;
 }
 
