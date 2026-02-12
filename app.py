@@ -82,32 +82,32 @@ header[data-testid="stHeader"] svg {
     fill: #85dbd9 !important;
 }
 
-/* Slider - poista turkoosi boxi */
-[data-testid="stSidebar"] .stSlider {
-    background-color: transparent !important;
-}
-[data-testid="stSidebar"] .stSlider > div {
-    background-color: transparent !important;
-}
-[data-testid="stSidebar"] .stSlider > div > div {
-    background-color: transparent !important;
-}
+/* Slider - poista kaikki taustavärit */
+[data-testid="stSidebar"] .stSlider,
+[data-testid="stSidebar"] .stSlider > div,
+[data-testid="stSidebar"] .stSlider > div > div,
+[data-testid="stSidebar"] .stSlider > div > div > div,
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"],
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"],
 [data-testid="stSidebar"] .stSlider label {
     background-color: transparent !important;
+    background: transparent !important;
 }
 
 /* Slider numero - valkoinen */
 [data-testid="stSidebar"] .stSlider [data-testid="stTickBarMin"],
 [data-testid="stSidebar"] .stSlider [data-testid="stTickBarMax"],
-[data-testid="stSidebar"] .stSlider > div > div > div > div > div {
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:last-child {
     color: white !important;
 }
 
-/* Slider palkki ja nuppi - turkoosi */
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div:first-child {
+/* Slider palkki - turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div:first-child > div {
     background: #85dbd9 !important;
 }
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [role="slider"] {
+
+/* Slider nuppi - turkoosi */
+[data-testid="stSidebar"] .stSlider [role="slider"] {
     background-color: #85dbd9 !important;
     border-color: #85dbd9 !important;
 }
