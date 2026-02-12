@@ -4,8 +4,6 @@
 
 import streamlit as st
 import json
-import google.generativeai as genai
-import os
 
 # ----------------------
 # TÄRKEÄÄ: st.set_page_config() täytyy olla ENSIMMÄINEN Streamlit-komento
@@ -181,8 +179,8 @@ header[data-testid="stHeader"] svg {
 [data-testid="stSidebar"] .stTextArea textarea::placeholder {
     color: rgba(255,255,255,0.7) !important;
 }
-
 /* ===== FOCUS-REUNAT - tumma turkoosi ===== */
+/* Kielivalikko (selectbox) */
 [data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within,
 [data-testid="stSelectbox"] [data-baseweb="select"]:focus-within {
     border-color: #369694 !important;
@@ -195,6 +193,7 @@ header[data-testid="stHeader"] svg {
     outline: none !important;
 }
 
+/* Checkbox - EI reunaa klikattaessa */
 [data-testid="stSidebar"] .stCheckbox input:focus + div,
 [data-testid="stSidebar"] .stCheckbox [data-baseweb="checkbox"]:focus-within,
 [data-testid="stSidebar"] .stCheckbox:focus-within,
@@ -209,6 +208,7 @@ header[data-testid="stHeader"] svg {
     outline: none !important;
 }
 
+/* Slider focus */
 [data-testid="stSidebar"] .stSlider [role="slider"]:focus,
 [data-testid="stSidebar"] .stSlider [role="slider"]:active {
     border-color: #369694 !important;
@@ -216,6 +216,7 @@ header[data-testid="stHeader"] svg {
     outline: none !important;
 }
 
+/* Text area focus - tumma turkoosi reuna */
 [data-testid="stSidebar"] .stTextArea textarea:focus {
     border-color: #369694 !important;
     box-shadow: 0 0 0 2px #369694 !important;
@@ -226,12 +227,14 @@ header[data-testid="stHeader"] svg {
     box-shadow: none !important;
 }
 
+/* Painike focus */
 .stButton > button:focus {
     border-color: #369694 !important;
     box-shadow: 0 0 0 2px #369694 !important;
     outline: none !important;
 }
 
+/* Kaikki input-elementit focus */
 [data-testid="stSidebar"] input:focus,
 [data-testid="stSidebar"] select:focus {
     border-color: #369694 !important;
@@ -239,6 +242,7 @@ header[data-testid="stHeader"] svg {
     outline: none !important;
 }
 
+/* Ylikirjoita Streamlitin oletusvärit */
 *:focus {
     outline-color: #369694 !important;
 }
@@ -246,6 +250,7 @@ header[data-testid="stHeader"] svg {
 [data-baseweb] *:focus-visible {
     border-color: #369694 !important;
 }
+/* Poista turkoosi reuna checkboxista */
 [data-testid="stSidebar"] [data-baseweb="checkbox"]:focus-within > div {
     box-shadow: none !important;
     border-color: transparent !important;
@@ -269,6 +274,7 @@ if 'selected_lang' not in st.session_state:
 # ----------------------
 # Käännösten sanakirja
 # ----------------------
+# Kysymykset perustuvat UUT:n (Uskontojen uhrien tuki) materiaaliin
 translations = {
     "Suomi": {
         "title": "Hengellisen väkivallan merkkien tunnistaminen",
@@ -318,6 +324,10 @@ translations = {
         "reflection_header": "AI-avusteinen reflektio",
         "footer": "**Huom.** Säilytä luottamuksellisuus, älä tallenna henkilötietoja.",
         "language_label": "Kieli",
+        "severity_high": "Vakavia huolenaiheita havaittu",
+        "severity_medium": "Useita huolenaiheita havaittu",
+        "severity_low": "Joitakin huolenaiheita havaittu",
+        "severity_none": "Ei merkittäviä huolenaiheita havaittu",
     },
     "English": {
         "title": "Spiritual Abuse Check-in",
@@ -367,6 +377,10 @@ translations = {
         "reflection_header": "AI-assisted reflection",
         "footer": "**Note:** Keep confidentiality, do not store personal data.",
         "language_label": "Language",
+        "severity_high": "Serious concerns identified",
+        "severity_medium": "Multiple concerns identified",
+        "severity_low": "Some concerns identified",
+        "severity_none": "No significant concerns identified",
     },
     "Svenska": {
         "title": "Check-in för andligt våld",
@@ -416,198 +430,250 @@ translations = {
         "reflection_header": "AI-assisterad reflektion",
         "footer": "**Obs!** Behåll konfidentialitet, spara inte personuppgifter.",
         "language_label": "Språk",
+        "severity_high": "Allvarliga bekymmer identifierade",
+        "severity_medium": "Flera bekymmer identifierade",
+        "severity_low": "Vissa bekymmer identifierade",
+        "severity_none": "Inga betydande bekymmer identifierade",
     },
 }
 
 
 # ----------------------
-# AI-avusteinen reflektio (Gemini API)
+# AI-avusteinen reflektio
 # ----------------------
 def generate_ai_reflection(lang, data, facts, tr):
     """
-    Generoi älykkään, kontekstuaalisen reflektion Gemini AI:n avulla.
+    Generoi älykkään, kontekstuaalisen reflektion valittujen indikaattorien perusteella.
+    Analysoi vastaukset ja tuottaa kategoriakohtaista palautetta.
     """
     checked_keys = data.get("checked_keys", [])
+    checked_labels = data.get("checked_labels", [])
     safe = data.get("safe_slider", 3)
     notes = data.get("notes", "")
     categories = tr.get("question_categories", {})
     
-    checked_categories = [categories.get(k, k) for k in checked_keys]
-    
-    lang_names = {
-        "Suomi": "suomeksi",
-        "English": "in English",
-        "Svenska": "på svenska"
-    }
-    lang_instruction = lang_names.get(lang, "suomeksi")
-    
-    if checked_categories:
-        indicators_text = "\n".join([f"- {cat}" for cat in checked_categories])
-    else:
-        indicators_text = "Ei valittuja indikaattoreita."
-    
-    support_list = []
-    for s in facts.get("follow_up_support", []):
-        name = s.get('name', s.get('text', ''))
-        source = s.get('source', '')
-        if name and source:
-            support_list.append(f"- {name}: {source}")
-    support_text = "\n".join(support_list) if support_list else "Ei saatavilla."
-    
-    prompt = f"""Olet trauma-tietoinen ammattilainen, joka auttaa kartoittamaan hengellisen väkivallan merkkejä.
-
-Asiakkaan tilanne:
-- Turvallisuuden kokemus: {safe}/5 (1=hyvin pelokas, 5=hyvin turvallinen)
-- Havaitut hengellisen väkivallan muodot:
-{indicators_text}
-- Työntekijän muistiinpanot: {notes if notes else "Ei muistiinpanoja."}
-
-Tukipalvelut Suomessa:
-{support_text}
-
-Tehtäväsi:
-1. Kirjoita lyhyt, empaattinen yhteenveto asiakkaan tilanteesta
-2. Analysoi mitä havaitut merkit voivat tarkoittaa asiakkaan kokemuksessa
-3. Anna 3-4 konkreettista suositusta työntekijälle
-4. Mainitse sopivat tukipalvelut
-
-Kirjoita vastaus {lang_instruction}. Käytä trauma-tietoista, kunnioittavaa kieltä. 
-Älä käytä liian kliinistä kieltä. Ole empaattinen mutta ammatillinen.
-Käytä markdown-muotoilua (## otsikoille, **lihavointi**, - listoille)."""
-
-    try:
-        # Hae API-avain - kokeile molempia tapoja
-        api_key = None
-        
-        # Yritä ensin st.secrets
-        try:
-            api_key = st.secrets["GEMINI_API_KEY"]
-        except:
-            pass
-        
-        # Jos ei löydy, yritä ympäristömuuttujaa
-        if not api_key:
-            api_key = os.environ.get("GEMINI_API_KEY")
-        
-        if not api_key:
-            st.warning("API-avainta ei löytynyt. Käytetään vaihtoehtoista menetelmää.")
-            return fallback_reflection(lang, data, facts, tr)
-        
-        # Konfiguroi Gemini
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        
-        # Generoi vastaus
-        response = model.generate_content(prompt)
-        
-        return response.text
-        
-    except Exception as e:
-        pass  # Käytä hiljaisesti fallback-versiota
-        return fallback_reflection(lang, data, facts, tr)
-
-
-def fallback_reflection(lang, data, facts, tr):
-    """
-    Vaihtoehtoinen sääntöpohjainen reflektio, jos AI ei toimi.
-    """
-    checked_keys = data.get("checked_keys", [])
-    safe = data.get("safe_slider", 3)
-    notes = data.get("notes", "")
-    categories = tr.get("question_categories", {})
-    
+    # Määritä vakavuustaso
     num_indicators = len(checked_keys)
-    parts = []
+    if num_indicators >= 5:
+        severity = "high"
+    elif num_indicators >= 3:
+        severity = "medium"
+    elif num_indicators >= 1:
+        severity = "low"
+    else:
+        severity = "none"
     
+    reflection_parts = []
+    
+    # === SUOMI ===
     if lang == "Suomi":
-        if num_indicators >= 5:
-            parts.append("## ⚠️ Vakavia huolenaiheita havaittu\n")
-        elif num_indicators >= 3:
-            parts.append("## ⚡ Useita huolenaiheita havaittu\n")
-        elif num_indicators >= 1:
-            parts.append("## 📋 Joitakin huolenaiheita havaittu\n")
+        # Otsikko vakavuuden mukaan
+        if severity == "high":
+            reflection_parts.append(f"## ⚠️ {tr['severity_high']}\n")
+        elif severity == "medium":
+            reflection_parts.append(f"## ⚡ {tr['severity_medium']}\n")
+        elif severity == "low":
+            reflection_parts.append(f"## 📋 {tr['severity_low']}\n")
         else:
-            parts.append("## ✅ Ei merkittäviä huolenaiheita havaittu\n")
+            reflection_parts.append(f"## ✅ {tr['severity_none']}\n")
         
-        parts.append(f"**Turvallisuuden kokemus:** {safe}/5\n")
+        # Turvallisuusarvio
+        reflection_parts.append(f"**Turvallisuuden kokemus:** {safe}/5")
+        if safe <= 2:
+            reflection_parts.append("*Asiakkaan turvallisuuden kokemus on matala. Tämä on tärkeä huomioida keskustelussa.*\n")
+        elif safe >= 4:
+            reflection_parts.append("*Asiakas kokee voivansa keskustella suhteellisen turvallisesti.*\n")
+        else:
+            reflection_parts.append("")
         
+        # Analyysi valituista kategorioista
         if checked_keys:
-            parts.append("### Havaitut muodot:\n")
+            reflection_parts.append("### Havaitut hengellisen väkivallan muodot\n")
+            reflection_parts.append("Kartoituksen perusteella asiakkaan kokemuksessa nousee esiin seuraavia hengellisen väkivallan piirteitä:\n")
+            
             for key in checked_keys:
-                cat = categories.get(key, key)
-                parts.append(f"- {cat}")
+                category_name = categories.get(key, key)
+                reflection_parts.append(f"**{category_name}**")
+                
+                # Kategoria-kohtaiset selitykset ja suositukset
+                if key == "pelottelu":
+                    reflection_parts.append("Pelottelua Jumalan rangaistuksilla tai pahoilla hengillä käytetään usein kontrolloimaan yhteisön jäseniä. Tämä voi aiheuttaa syvää ahdistusta ja pelkoa, joka vaikuttaa arkeen myös yhteisön ulkopuolella.\n")
+                elif key == "kontrolli":
+                    reflection_parts.append("Yksityiselämän kontrollointi uskonnollisin perustein rajoittaa ihmisen autonomiaa ja itsemääräämisoikeutta. Tämä voi vaikuttaa identiteettiin ja kykyyn tehdä itsenäisiä päätöksiä.\n")
+                elif key == "eristaminen":
+                    reflection_parts.append("Sosiaalinen eristäminen heikentää tukiverkostoa ja lisää riippuvuutta yhteisöstä. Yhteyksien rajoittaminen voi tehdä yhteisöstä lähtemisen erittäin vaikeaksi.\n")
+                elif key == "hapaiseminen":
+                    reflection_parts.append("Julkinen häpäiseminen ja nöyryyttäminen voivat aiheuttaa syvää häpeää ja traumaa. Tämä on vakava vallankäytön muoto.\n")
+                elif key == "autonomia":
+                    reflection_parts.append("Oman ajattelun ja tunteiden kieltäminen murentaa identiteettiä ja itseluottamusta. Toipuminen vaatii usein oman äänen ja arvojen uudelleen löytämistä.\n")
+                elif key == "seksuaalisuus":
+                    reflection_parts.append("Seksuaalisen itsemääräämisoikeuden loukkaaminen on vakava väkivallan muoto. Tämä voi aiheuttaa pitkäaikaisia vaikutuksia kehosuhteeseen ja seksuaalisuuteen.\n")
+                elif key == "sielunhoito":
+                    reflection_parts.append("Hengellisen tuen vääristäminen rikkoo luottamusta ja voi tehdä avun hakemisesta vaikeaa tulevaisuudessa.\n")
+                elif key == "vaikeneminen":
+                    reflection_parts.append("Painostus vaieta väkivallasta estää avun saamisen ja suojelee tekijöitä. Tämä voi aiheuttaa syvää yksinäisyyttä ja häpeää.\n")
+                elif key == "sukupuoli":
+                    reflection_parts.append("Syrjintä sukupuolen tai seksuaalisen suuntautumisen vuoksi voi aiheuttaa syvää häpeää ja identiteettikriisin.\n")
+                elif key == "talous":
+                    reflection_parts.append("Taloudellinen riisto voi aiheuttaa konkreettisia ongelmia toimeentuloon ja lisätä riippuvuutta yhteisöstä.\n")
+                elif key == "terveys":
+                    reflection_parts.append("Terveydenhuollon rajoittaminen vaarantaa fyysisen ja psyykkisen terveyden.\n")
+            
+            # Kokonaisarvio
+            reflection_parts.append("### Kokonaisarvio\n")
+            if severity == "high":
+                reflection_parts.append("Asiakkaan kokemuksessa on useita vakavia hengellisen väkivallan piirteitä. On tärkeää varmistaa asiakkaan turvallisuus ja ohjata ammatilliseen tukeen.\n")
+            elif severity == "medium":
+                reflection_parts.append("Asiakkaan kokemuksessa on merkittäviä hengellisen väkivallan piirteitä. Suositellaan jatkotukea ja tilanteen seurantaa.\n")
+            else:
+                reflection_parts.append("Asiakkaan kokemuksessa on joitakin huolenaiheita. Keskustelun jatkaminen ja tilanteen kartoittaminen on suositeltavaa.\n")
+        else:
+            reflection_parts.append("Kartoituksen perusteella ei havaittu selkeitä hengellisen väkivallan indikaattoreita. Tämä ei kuitenkaan sulje pois kokemuksia – asiakas ei välttämättä ole valmis kertomaan kaikesta.\n")
         
+        # Muistiinpanot
         if notes:
-            parts.append(f"\n### Muistiinpanot:\n{notes}")
+            reflection_parts.append(f"### Muistiinpanot\n{notes}\n")
         
-        parts.append("\n### Suositukset:\n")
-        parts.append("- Kuuntele empaattisesti")
-        parts.append("- Vahvista asiakkaan kokemukset")
-        parts.append("- Arvioi turvallisuustilanne")
-        parts.append("- Ohjaa tarvittaessa ammatilliseen tukeen")
+        # Suositukset
+        reflection_parts.append("### Suositeltavat toimenpiteet\n")
+        reflection_parts.append("- **Kuuntele** empaattisesti ja vahvista asiakkaan kokemukset todellisiksi")
+        reflection_parts.append("- **Vältä** vähättelyä tai painostamista toimintaan, johon asiakas ei ole valmis")
+        reflection_parts.append("- **Arvioi** välitön turvallisuustilanne")
+        reflection_parts.append("- **Ohjaa** tarvittaessa ammatilliseen tukeen")
         
+    # === ENGLISH ===
     elif lang == "English":
-        if num_indicators >= 5:
-            parts.append("## ⚠️ Serious concerns identified\n")
-        elif num_indicators >= 3:
-            parts.append("## ⚡ Multiple concerns identified\n")
-        elif num_indicators >= 1:
-            parts.append("## 📋 Some concerns identified\n")
+        if severity == "high":
+            reflection_parts.append(f"## ⚠️ {tr['severity_high']}\n")
+        elif severity == "medium":
+            reflection_parts.append(f"## ⚡ {tr['severity_medium']}\n")
+        elif severity == "low":
+            reflection_parts.append(f"## 📋 {tr['severity_low']}\n")
         else:
-            parts.append("## ✅ No significant concerns identified\n")
+            reflection_parts.append(f"## ✅ {tr['severity_none']}\n")
         
-        parts.append(f"**Safety experience:** {safe}/5\n")
+        reflection_parts.append(f"**Safety experience:** {safe}/5")
+        if safe <= 2:
+            reflection_parts.append("*The client's sense of safety is low. This is important to consider in the conversation.*\n")
+        elif safe >= 4:
+            reflection_parts.append("*The client feels relatively safe to discuss.*\n")
+        else:
+            reflection_parts.append("")
         
         if checked_keys:
-            parts.append("### Identified forms:\n")
+            reflection_parts.append("### Identified forms of spiritual abuse\n")
+            reflection_parts.append("Based on the check-in, the following characteristics of spiritual abuse emerge in the client's experience:\n")
+            
             for key in checked_keys:
-                cat = categories.get(key, key)
-                parts.append(f"- {cat}")
+                category_name = categories.get(key, key)
+                reflection_parts.append(f"**{category_name}**")
+                
+                if key == "pelottelu":
+                    reflection_parts.append("Intimidation with God's punishment or evil spirits is often used to control community members. This can cause deep anxiety and fear.\n")
+                elif key == "kontrolli":
+                    reflection_parts.append("Controlling private life on religious grounds limits a person's autonomy and self-determination.\n")
+                elif key == "eristaminen":
+                    reflection_parts.append("Social isolation weakens support networks and increases dependence on the community.\n")
+                elif key == "hapaiseminen":
+                    reflection_parts.append("Public shaming and humiliation can cause deep shame and trauma.\n")
+                elif key == "autonomia":
+                    reflection_parts.append("Denying one's own thinking and feelings erodes identity and self-confidence.\n")
+                elif key == "seksuaalisuus":
+                    reflection_parts.append("Violation of sexual autonomy is a serious form of violence.\n")
+                elif key == "sielunhoito":
+                    reflection_parts.append("Distortion of spiritual support breaks trust and can make seeking help difficult.\n")
+                elif key == "vaikeneminen":
+                    reflection_parts.append("Pressure to remain silent about violence prevents getting help and protects perpetrators.\n")
+                elif key == "sukupuoli":
+                    reflection_parts.append("Discrimination based on gender or sexual orientation can cause deep shame.\n")
+                elif key == "talous":
+                    reflection_parts.append("Financial exploitation can cause concrete problems and increase dependence on the community.\n")
+                elif key == "terveys":
+                    reflection_parts.append("Restricting healthcare endangers physical and mental health.\n")
+            
+            reflection_parts.append("### Overall assessment\n")
+            if severity == "high":
+                reflection_parts.append("The client's experience shows multiple serious characteristics of spiritual abuse. It is important to ensure the client's safety and refer to professional support.\n")
+            elif severity == "medium":
+                reflection_parts.append("The client's experience shows significant characteristics of spiritual abuse. Continued support and monitoring is recommended.\n")
+            else:
+                reflection_parts.append("The client's experience shows some concerns. Continuing the conversation and mapping the situation is recommended.\n")
+        else:
+            reflection_parts.append("Based on the check-in, no clear indicators of spiritual abuse were identified. However, this does not rule out experiences – the client may not be ready to share everything.\n")
         
         if notes:
-            parts.append(f"\n### Notes:\n{notes}")
+            reflection_parts.append(f"### Notes\n{notes}\n")
         
-        parts.append("\n### Recommendations:\n")
-        parts.append("- Listen empathetically")
-        parts.append("- Validate the client's experiences")
-        parts.append("- Assess safety situation")
-        parts.append("- Refer to professional support if needed")
+        reflection_parts.append("### Recommended actions\n")
+        reflection_parts.append("- **Listen** empathetically and validate the client's experiences")
+        reflection_parts.append("- **Avoid** minimizing or pressuring action the client is not ready for")
+        reflection_parts.append("- **Assess** immediate safety situation")
+        reflection_parts.append("- **Refer** to professional support if needed")
         
+    # === SVENSKA ===
     elif lang == "Svenska":
-        if num_indicators >= 5:
-            parts.append("## ⚠️ Allvarliga bekymmer identifierade\n")
-        elif num_indicators >= 3:
-            parts.append("## ⚡ Flera bekymmer identifierade\n")
-        elif num_indicators >= 1:
-            parts.append("## 📋 Vissa bekymmer identifierade\n")
+        if severity == "high":
+            reflection_parts.append(f"## ⚠️ {tr['severity_high']}\n")
+        elif severity == "medium":
+            reflection_parts.append(f"## ⚡ {tr['severity_medium']}\n")
+        elif severity == "low":
+            reflection_parts.append(f"## 📋 {tr['severity_low']}\n")
         else:
-            parts.append("## ✅ Inga betydande bekymmer identifierade\n")
+            reflection_parts.append(f"## ✅ {tr['severity_none']}\n")
         
-        parts.append(f"**Trygghetsupplevelse:** {safe}/5\n")
+        reflection_parts.append(f"**Trygghetsupplevelse:** {safe}/5")
+        if safe <= 2:
+            reflection_parts.append("*Klientens trygghetsupplevelse är låg. Detta är viktigt att beakta i samtalet.*\n")
+        elif safe >= 4:
+            reflection_parts.append("*Klienten känner sig relativt trygg att diskutera.*\n")
+        else:
+            reflection_parts.append("")
         
         if checked_keys:
-            parts.append("### Identifierade former:\n")
+            reflection_parts.append("### Identifierade former av andligt våld\n")
+            reflection_parts.append("Baserat på check-in framträder följande kännetecken på andligt våld i klientens upplevelse:\n")
+            
             for key in checked_keys:
-                cat = categories.get(key, key)
-                parts.append(f"- {cat}")
+                category_name = categories.get(key, key)
+                reflection_parts.append(f"**{category_name}**")
+                reflection_parts.append("Detta är en allvarlig form av andligt våld som kräver uppmärksamhet.\n")
+            
+            reflection_parts.append("### Övergripande bedömning\n")
+            if severity == "high":
+                reflection_parts.append("Klientens upplevelse visar flera allvarliga kännetecken på andligt våld. Det är viktigt att säkerställa klientens säkerhet och hänvisa till professionellt stöd.\n")
+            elif severity == "medium":
+                reflection_parts.append("Klientens upplevelse visar betydande kännetecken på andligt våld. Fortsatt stöd och uppföljning rekommenderas.\n")
+            else:
+                reflection_parts.append("Klientens upplevelse visar vissa bekymmer. Att fortsätta samtalet och kartlägga situationen rekommenderas.\n")
+        else:
+            reflection_parts.append("Baserat på check-in identifierades inga tydliga indikatorer på andligt våld. Detta utesluter dock inte upplevelser – klienten kanske inte är redo att dela allt.\n")
         
         if notes:
-            parts.append(f"\n### Anteckningar:\n{notes}")
+            reflection_parts.append(f"### Anteckningar\n{notes}\n")
         
-        parts.append("\n### Rekommendationer:\n")
-        parts.append("- Lyssna empatiskt")
-        parts.append("- Bekräfta klientens upplevelser")
-        parts.append("- Bedöm säkerhetssituationen")
-        parts.append("- Hänvisa till professionellt stöd vid behov")
+        reflection_parts.append("### Rekommenderade åtgärder\n")
+        reflection_parts.append("- **Lyssna** empatiskt och bekräfta klientens upplevelser")
+        reflection_parts.append("- **Undvik** att minimera eller pressa till handling klienten inte är redo för")
+        reflection_parts.append("- **Bedöm** omedelbar säkerhetssituation")
+        reflection_parts.append("- **Hänvisa** till professionellt stöd vid behov")
     
-    parts.append("\n---\n### Tukipalvelut:\n")
+    # Lisää lähteet ja tukipalvelut facts.json:sta
+    reflection_parts.append("\n---\n")
+    
+    support_header = {
+        "Suomi": "### Tukipalvelut ja lisätiedot",
+        "English": "### Support services and additional information",
+        "Svenska": "### Stödtjänster och ytterligare information"
+    }
+    reflection_parts.append(support_header[lang])
+    
     for s in facts.get("follow_up_support", []):
         name = s.get('name', s.get('text', ''))
         source = s.get('source', '')
         if name and source:
-            parts.append(f"- [{name}]({source})")
+            reflection_parts.append(f"- [{name}]({source})")
     
-    return "\n".join(parts)
+    return "\n".join(reflection_parts)
 
 
 # ----------------------
@@ -703,10 +769,13 @@ if st.button(tr["button"]):
         with open("facts.json", encoding="utf-8") as fh:
             facts = json.load(fh)
     except FileNotFoundError:
+        st.warning("facts.json-tiedostoa ei löytynyt.")
         facts = {"follow_up_support": []}
     except json.JSONDecodeError:
+        st.error("facts.json-tiedoston lukeminen epäonnistui.")
         facts = {"follow_up_support": []}
-    except Exception:
+    except Exception as e:
+        st.error(f"Virhe: {e}")
         facts = {"follow_up_support": []}
 
     st.session_state.reflection_text = generate_ai_reflection(
