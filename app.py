@@ -179,6 +179,55 @@ header[data-testid="stHeader"] svg {
 [data-testid="stSidebar"] .stTextArea textarea::placeholder {
     color: rgba(255,255,255,0.7) !important;
 }
+/* ===== FOCUS-REUNAT - tumma turkoosi ===== */
+/* Checkbox focus */
+[data-testid="stSidebar"] .stCheckbox input:focus + div,
+[data-testid="stSidebar"] .stCheckbox [data-baseweb="checkbox"]:focus-within {
+    border-color: #369694 !important;
+    box-shadow: 0 0 0 2px #369694 !important;
+    outline: none !important;
+}
+
+/* Slider focus */
+[data-testid="stSidebar"] .stSlider [role="slider"]:focus,
+[data-testid="stSidebar"] .stSlider [role="slider"]:active {
+    border-color: #369694 !important;
+    box-shadow: 0 0 0 2px #369694 !important;
+    outline: none !important;
+}
+
+/* Text area focus */
+[data-testid="stSidebar"] .stTextArea textarea:focus {
+    border-color: #369694 !important;
+    box-shadow: 0 0 0 2px #369694 !important;
+    outline: none !important;
+}
+
+/* Painike focus */
+.stButton > button:focus {
+    border-color: #369694 !important;
+    box-shadow: 0 0 0 2px #369694 !important;
+    outline: none !important;
+}
+
+/* Kaikki input-elementit focus */
+[data-testid="stSidebar"] input:focus,
+[data-testid="stSidebar"] textarea:focus,
+[data-testid="stSidebar"] select:focus {
+    border-color: #369694 !important;
+    box-shadow: 0 0 0 2px #369694 !important;
+    outline: none !important;
+}
+
+/* Ylikirjoita Streamlitin oletusvärit */
+*:focus {
+    outline-color: #369694 !important;
+}
+[data-baseweb] *:focus,
+[data-baseweb] *:focus-visible {
+    border-color: #369694 !important;
+    box-shadow: 0 0 0 2px #369694 !important;
+}
 </style>
 """
 st.markdown(color_scheme, unsafe_allow_html=True)
