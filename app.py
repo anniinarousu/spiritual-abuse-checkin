@@ -111,11 +111,20 @@ header[data-testid="stHeader"] svg {
     background-color: transparent !important;
 }
 
-/* Slider VIIVA (track) - turkoosi */
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div:first-child {
+/* Slider VIIVA (track) - koko viiva turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div,
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div,
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div:first-child,
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div > div:last-child {
     background: #85dbd9 !important;
     background-color: #85dbd9 !important;
-    height: 4px !important;
+}
+
+/* Slider track fill (vasen puoli) - turkoosi */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [data-testid="StyledTrackFill"],
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[style*="background"] {
+    background: #85dbd9 !important;
+    background-color: #85dbd9 !important;
 }
 
 /* Slider PALLO (thumb) - turkoosi */
@@ -128,6 +137,12 @@ header[data-testid="stHeader"] svg {
 [data-testid="stSidebar"] .stSlider [data-testid="stThumbValue"] {
     color: white !important;
     background-color: transparent !important;
+}
+
+/* Ylikirjoita kaikki oranssit värit sliderissa */
+[data-testid="stSidebar"] .stSlider div[style*="rgb(255"] {
+    background: #85dbd9 !important;
+    background-color: #85dbd9 !important;
 }
 
 /* ===== PAINIKE ===== */
