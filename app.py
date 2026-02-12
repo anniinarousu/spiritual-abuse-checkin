@@ -168,12 +168,16 @@ header[data-testid="stHeader"] svg {
 
 /* ===== TEXT AREA ===== */
 [data-testid="stSidebar"] .stTextArea,
-[data-testid="stSidebar"] .stTextArea > div {
+[data-testid="stSidebar"] .stTextArea > div,
+[data-testid="stSidebar"] .stTextArea label {
     background-color: transparent !important;
 }
 [data-testid="stSidebar"] .stTextArea textarea {
-    background-color: rgba(255,255,255,0.1) !important;
+    background-color: #5a5a9e !important;
     color: white !important;
+}
+[data-testid="stSidebar"] .stTextArea textarea::placeholder {
+    color: rgba(255,255,255,0.7) !important;
 }
 </style>
 """
